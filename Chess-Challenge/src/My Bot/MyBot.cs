@@ -2,51 +2,56 @@
 
 public class MyBot : IChessBot
 {
-    //Implements the https://en.wikipedia.org/wiki/Negamax algorithm
-
     // Piece values: null, pawn, knight, bishop, rook, queen
     int[] PieceValues = { 0, 100, 300, 300, 500, 900 };
-    int CheckmateScore = 9999;
-    int Depth = 4;
+    int Checkmate = 9999;
+    int Depth = 6;
 
     public Move Think(Board board, Timer timer)
     {
         Move bestMove = default;
-        int bestScore = -CheckmateScore;
+        int alpha = -10000;
+        int beta = 10000;
         foreach (Move move in board.GetLegalMoves())
         {
             board.MakeMove(move);
-            int score = -NegaMax(1, board);
+            int score = -NegaAlphaBeta(-beta, -alpha, 1, board);
             board.UndoMove(move);
 
-            if (score > bestScore)
+            if (score > alpha)
             {
                 bestMove = move;
-                bestScore = score;
+                alpha = score;
             }
         }
         return bestMove;
     }
 
-    private int NegaMax(int depth, Board board)
+    private int NegaAlphaBeta(int alpha, int beta, int depth, Board board)
     {
         if (depth == Depth)
             return Eval(board);
 
-        if (board.IsInCheckmate())
-            return -CheckmateScore;
+        if (board.IsDraw())
+            return 0;
 
-        int bestScore = -CheckmateScore;
+        if (board.IsInCheckmate())
+            return -Checkmate;
+
         foreach (Move move in board.GetLegalMoves())
         {
             board.MakeMove(move);
-            int score = -NegaMax(depth + 1, board);
+            int score = -NegaAlphaBeta(-beta, -alpha, depth + 1, board);
             board.UndoMove(move);
 
-            if (score > bestScore)
-                bestScore = score;
+            if (score > alpha)
+            {
+                alpha = score;
+                if (score >= beta)
+                    return beta;
+            }
         }
-        return bestScore;
+        return alpha;
     }
 
     private int Eval(Board board)

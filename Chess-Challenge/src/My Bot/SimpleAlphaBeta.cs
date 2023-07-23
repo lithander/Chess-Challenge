@@ -4,14 +4,14 @@ public class SimpleAlphaBeta : IChessBot
 {
     // Piece values: null, pawn, knight, bishop, rook, queen
     int[] PieceValues = { 0, 100, 300, 300, 500, 900 };
-    int CheckmateScore = 9999;
+    int Checkmate = 9999;
     int Depth = 6;
 
     public Move Think(Board board, Timer timer)
     {
         Move bestMove = default;
-        int alpha = -CheckmateScore;
-        int beta = CheckmateScore;
+        int alpha = -10000;
+        int beta = 10000;
         foreach (Move move in board.GetLegalMoves())
         {
             board.MakeMove(move);
@@ -36,7 +36,7 @@ public class SimpleAlphaBeta : IChessBot
             return 0;
 
         if (board.IsInCheckmate())
-            return -CheckmateScore;
+            return -Checkmate;
 
         foreach (Move move in board.GetLegalMoves())
         {
